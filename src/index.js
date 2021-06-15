@@ -43,7 +43,6 @@ app.post("/api/student", (req, res) => {
   if (name && currentClass &&division) 
   {   
     studentArray=[...studentArray , {id:(studentArray.length+1),name,currentClass,division}]
-     console.log(studentArray)
     res.status(200).json({ id: studentArray.length });}
      else res.sendStatus(400);
 });
@@ -57,12 +56,11 @@ app.put("/api/student/:id", (req, res) => {
   studentArray1.forEach((ele, idx) => {
     if (ele.id == id) {
       ele.name = name || ele.name;
-      ele.currentClass = name || ele.currentClass;
+      ele.currentClass = currentClass || ele.currentClass;
       ele.division = division || ele.division;
       isValid = true;
     }
   });
-  console.log(isValid)
   isValid ? res.sendStatus(200) : res.sendStatus(400);
 });
 
