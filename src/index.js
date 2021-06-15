@@ -5,6 +5,7 @@ const studentArray1 = require("./InitialData");
 let studentArray = [...studentArray1];
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 // your code goes here
 app.get("/", (req, res) => {
   res.status(200).send("Home ");
@@ -40,14 +41,10 @@ app.delete("/api/student/:id", (req, res) => {
 
 //adding a new data in
 app.post("/api/student", (req, res) => {
-  const {name,currentClass,division} = req.body//  JSON.parse((Object.keys(req.body[0])));
-  console.log(req.body)
-  console.log(name)
-  console.log(currentClass)
-  console.log(division)
+  const {name,currentClass,division} =  JSON.parse(Object.keys(req.body)[0]);
   if (name && currentClass &&division) 
   {   
-    studentArray=[...studentArray , {name,currentClass,division,id:(studentArray.length+1)}]
+    studentArray=[...studentArray , {id:(studentArray.length+1),name,currentClass,division}]
      console.log(studentArray)
     res.status(200).json({ id: studentArray.length });}
      else res.sendStatus(400);
@@ -55,23 +52,23 @@ app.post("/api/student", (req, res) => {
 
 //Putting / update request
 app.put("/api/student/:id", (req, res) => {
-  //const { name, currentClass, division } = JSON.parse(Object.keys(req.body)[0]);
-  const data=req.body;
-  console.log(data)
+  const { name, currentClass, division } = JSON.parse(Object.keys(req.body)[0]);
   const { id } = req.params;
-  console.log(id);
-  /*if (!name && !currentClass && !division) res.status(400);
+  console.log(name)
+  console.log(currentClass)
+  console.log(division)
+  if ([name,currentClass,division].every(el=>(!el))) res.status(400);
   let isValid = false;
   studentArray1.forEach((ele, idx) => {
-    if (ele.id === id) {
+    if (ele.id == id) {
       ele.name = name || ele.name;
       ele.currentClass = name || ele.currentClass;
       ele.division = division || ele.division;
-      //studentArray1[idx]=ele;
       isValid = true;
     }
   });
-  isValid ? res.status(200).send("Updated") : res.status(400).send(id);*/
+  console.log(isValid)
+  isValid ? res.status(200).send("Updated") : res.status(400).send(id);
 });
 
 app.listen(port, () => console.log(`App listening on port ${port}!`));
