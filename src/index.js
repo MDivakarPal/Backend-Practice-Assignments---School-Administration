@@ -1,88 +1,80 @@
-const express = require('express')
-const app = express()
-const bodyParser = require("body-parser");
-const port = 3000
-
-let students = require("./InitialData");
-
-
-let studentRealtimeData = [...students];
-
-app.use(express.urlencoded({extended:true}));
-
+const express = require("express");
+const app = express();
+const port = 8080;
+const studentArray1 = require("./InitialData");
+let studentArray = [...studentArray1];
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
 // your code goes here
+app.get("/", (req, res) => {
+  res.status(200).send("Home ");
+});
 
-app.get("/home" ,(_, res) => {
-    res.send("Home");
-})
+//To get data of all students in array of json formats
 app.get("/api/student", (req, res) => {
-
-res.status(200).json({
-    students:studentRealtimeData
+  res.status(200).send(JSON.stringify(studentArray));
 });
-})
 
-
+//get data of specific student specified id
 app.get("/api/student/:id", (req, res) => {
-    const {id} = req.params;
-    const foundStudent =  studentRealtimeData.find( ({id: objId}) => (id==objId));
-    if(foundStudent) {
-        res.status(200).json({
-            student: foundStudent
-        });
-    }
-   else{
-        res.sendStatus(404)
-    }
-
-})
-
-app.post("/api/student", (req, res) => {
-    const  {name,currentClass,division} =  JSON.parse(Object.keys(req.body)[0])
-    if(name && currentClass && division){
-        studentRealtimeData = [...studentRealtimeData, {name,currentClass,division, id:(studentRealtimeData.length+1) }]
-        res.status(200).send({
-            id: studentRealtimeData.length
-        })
-    }
-    else{
-        res.sendStatus(400);
-    }
+  const { id } = req.params;
+  const faund = studentArray.find((stu) => stu.id == id);
+  console.log(faund);
+  if (faund) res.status(200).json(faund);
+  else res.sendStatus(404).send("Failed");
 });
 
+//delete a element from the array
+app.delete("/api/student/:id", (req, res) => {
+  const { id } = req.params;
+  let isId = false;
+  console.log(id);
+  studentArray.forEach(({ id: currid }, idx) => {
+    if (currid == id) {
+      studentArray[idx] = { id: currid };
+      isId = true;
+    }
+  });
+  isId ? res.status(200).send("ok") : res.sendStatus(404);
+});
+
+//adding a new data in
+app.post("/api/student", (req, res) => {
+  const {name,currentClass,division} = req.body//  JSON.parse((Object.keys(req.body[0])));
+  console.log(req.body)
+  console.log(name)
+  console.log(currentClass)
+  console.log(division)
+  if (name && currentClass &&division) 
+  {   
+    studentArray=[...studentArray , {name,currentClass,division,id:(studentArray.length+1)}]
+     console.log(studentArray)
+    res.status(200).json({ id: studentArray.length });}
+     else res.sendStatus(400);
+});
+
+//Putting / update request
 app.put("/api/student/:id", (req, res) => {
-    const {id} = req.params;
-    const  {name,currentClass,division} =  JSON.parse(Object.keys(req.body)[0])
-    if([name,currentClass,division].every(el => (!el)))
-        res.sendStatus(400);
-    let isIdPresent = false;
-    studentRealtimeData.forEach(function (item) {
-        if(item.id === id){
-            item.name = name || item.name;
-            item.currentClass = currentClass || item.currentClass;
-            item.division = division || item.division;
-            isIdPresent = true;
-        }
-    })
+  //const { name, currentClass, division } = JSON.parse(Object.keys(req.body)[0]);
+  const data=req.body;
+  console.log(data)
+  const { id } = req.params;
+  console.log(id);
+  /*if (!name && !currentClass && !division) res.status(400);
 
-    isIdPresent? res.sendStatus(200): res.sendStatus(400);
-})
+  let isValid = false;
+  studentArray1.forEach((ele, idx) => {
+    if (ele.id === id) {
+      ele.name = name || ele.name;
+      ele.currentClass = name || ele.currentClass;
+      ele.division = division || ele.division;
+      //studentArray1[idx]=ele;
+      isValid = true;
+    }
+  });
+  isValid ? res.status(200).send("Updated") : res.status(400).send(id);*/
+});
 
-app.delete("/api/student/:id", (req,res) => {
+app.listen(port, () => console.log(`App listening on port ${port}!`));
 
-    const {id} = req.params;
-    let isIdPresent = false;
-    studentRealtimeData.forEach( item  => {
-        if(item.id === id){
-            isIdPresent = true;
-            item = { id:item.id}
-        }
-    })
-    isIdPresent?res.sendStatus(200): res.sendStatus(404);
-})
-
-app.listen(port, () => console.log(`App listening on port ${port}!`))
-
-module.exports = app;   
+module.exports = app;
