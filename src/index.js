@@ -35,7 +35,7 @@ app.delete("/api/student/:id", (req, res) => {
       isId = true;
     }
   });
-  isId ? res.status(200).send("ok") : res.sendStatus(404);
+  isId ? res.sendStatus(200) : res.sendStatus(404);
 });
 
 //adding a new data in
@@ -61,7 +61,6 @@ app.put("/api/student/:id", (req, res) => {
   const { id } = req.params;
   console.log(id);
   /*if (!name && !currentClass && !division) res.status(400);
-
   let isValid = false;
   studentArray1.forEach((ele, idx) => {
     if (ele.id === id) {
