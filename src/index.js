@@ -13,23 +13,21 @@ app.get("/", (req, res) => {
 
 //To get data of all students in array of json formats
 app.get("/api/student", (req, res) => {
-  res.status(200).send(JSON.stringify(studentArray));
+  res.status(200).json((studentArray));
 });
 
 //get data of specific student specified id
 app.get("/api/student/:id", (req, res) => {
   const { id } = req.params;
   const faund = studentArray.find((stu) => stu.id == id);
-  console.log(faund);
   if (faund) res.status(200).json(faund);
-  else res.sendStatus(404).send("Failed");
+  else res.sendStatus(404);
 });
 
 //delete a element from the array
 app.delete("/api/student/:id", (req, res) => {
   const { id } = req.params;
   let isId = false;
-  console.log(id);
   studentArray.forEach(({ id: currid }, idx) => {
     if (currid == id) {
       studentArray[idx] = { id: currid };
@@ -54,10 +52,7 @@ app.post("/api/student", (req, res) => {
 app.put("/api/student/:id", (req, res) => {
   const { name, currentClass, division } = JSON.parse(Object.keys(req.body)[0]);
   const { id } = req.params;
-  console.log(name)
-  console.log(currentClass)
-  console.log(division)
-  if ([name,currentClass,division].every(el=>(!el))) res.status(400);
+  if ([name,currentClass,division].every(el=>(!el))) res.sendStatus(400);
   let isValid = false;
   studentArray1.forEach((ele, idx) => {
     if (ele.id == id) {
@@ -68,7 +63,7 @@ app.put("/api/student/:id", (req, res) => {
     }
   });
   console.log(isValid)
-  isValid ? res.status(200).send("Updated") : res.status(400).send(id);
+  isValid ? res.sendStatus(200) : res.sendStatus(400);
 });
 
 app.listen(port, () => console.log(`App listening on port ${port}!`));
