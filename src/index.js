@@ -3,6 +3,7 @@ const app = express();
 const port = 8080;
 const studentArray1 = require("./InitialData");
 let studentArray = [...studentArray1];
+let stuId=studentArray.length;
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
@@ -28,12 +29,13 @@ app.get("/api/student/:id", (req, res) => {
 app.delete("/api/student/:id", (req, res) => {
   const { id } = req.params;
   let isId = false;
-  studentArray.forEach(({ id: currid }, idx) => {
+  studentArray=studentArray.filter(({ id: currid }, idx) => {
     if (currid == id) {
-      studentArray[idx] = { id: currid };
       isId = true;
-    }
-  });
+      return false;
+    }else
+    return true
+    });
   isId ? res.sendStatus(200) : res.sendStatus(404);
 });
 
@@ -41,9 +43,10 @@ app.delete("/api/student/:id", (req, res) => {
 app.post("/api/student", (req, res) => {
   const {name,currentClass,division} =  JSON.parse(Object.keys(req.body)[0]);
   if (name && currentClass &&division) 
-  {   
-    studentArray=[...studentArray , {id:(studentArray.length+1),name,currentClass,division}]
-    res.status(200).json({ id: studentArray.length });}
+  {  
+    stuId+=1; 
+    studentArray=[...studentArray , {id:(stuId),name,currentClass,division}]
+    res.status(200).json({ id: stuId});}
      else res.sendStatus(400);
 });
 
@@ -67,3 +70,5 @@ app.put("/api/student/:id", (req, res) => {
 app.listen(port, () => console.log(`App listening on port ${port}!`));
 
 module.exports = app;
+
+
